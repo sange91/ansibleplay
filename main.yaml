@@ -1,0 +1,59 @@
+- name: Service Playbook
+  hosts: linux
+  vars:
+    service_install_dir: "/etc/systemd/system"
+    service_name: 'test_service'
+
+  become: "yes"
+  become_user: 'root'
+  become_method: 'su'
+  # when: service_name == "test_service"
+
+  tasks:
+    - name: Copy Service File
+      ansible.builtin.template:
+        src: "/mnt/seagate/rnd/ansible/templates/{{ service_name }}.j2"
+        dest: "{{ service_install_dir }}/{{ service_name }}.service"
+
+      vars:
+        exec_start: "/share/test_service/{{ service_name }}.sh"
+        user: "root"
+
+    - name: Stop Service
+      ansible.builtin.service:
+        name: "{{ service_name }}"
+        state: stopped
+
+      notify:
+        - Echo Home
+        
+    - name: Reload Service
+      ansible.builtin.service:
+        name: "{{ service_name }}"
+        state: reloaded
+
+      register: start_output
+      notify:
+        - show service output
+
+    - name: Start Service
+      ansible.builtin.service:
+        name: "{{ service_name }}"
+        state: started
+
+      # become: "yes"
+      # become_user: 'root'
+      # become_method: 'su'
+
+  handlers:
+    - name: Echo Home
+      debug:
+        msg: "{{ lookup('env','HOME') }}"
+
+    # - name: show service output
+    #   debug:
+    #     var: start_output.changed
+
+    - name: show service output
+      debug:
+        msg: start_output.state
