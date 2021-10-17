@@ -4,9 +4,9 @@
     service_install_dir: "/etc/systemd/system"
     service_name: 'test_service'
 
-  become: "yes"
-  become_user: 'root'
-  become_method: 'su'
+#   become: "yes"
+#   become_user: 'root'
+#   become_method: 'su'
   # when: service_name == "test_service"
 
   tasks:
